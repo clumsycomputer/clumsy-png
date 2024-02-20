@@ -15,5 +15,5 @@ services:
       - .:/home/clumsy-png
       - ./.code-server:/config
     ports:
-      - 8443:8443
+      - 8444:8443
     restart: unless-stopped

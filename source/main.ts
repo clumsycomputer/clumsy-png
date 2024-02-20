@@ -1,14 +1,12 @@
 import { getEncodedPng, RgbVector } from './getEncodedPng.ts';
 
-const fooResolution = 1024 * 2;
+const fooResolution = 8 * 1;
 const fooPngPixelsResult: Array<Array<RgbVector>> = [];
 for (let rowIndex = 0; rowIndex < fooResolution; rowIndex++) {
   const fooPixelRowResult: Array<RgbVector> = [];
   for (let columnIndex = 0; columnIndex < fooResolution; columnIndex++) {
     fooPixelRowResult.push([
-      Math.floor(255 * Math.random()),
-      Math.floor(255 * Math.random()),
-      Math.floor(255 * Math.random()),
+      255, 0, 0
     ]);
   }
   fooPngPixelsResult.push(fooPixelRowResult);
@@ -16,4 +14,6 @@ for (let rowIndex = 0; rowIndex < fooResolution; rowIndex++) {
 const fooPng = getEncodedPng({
   pngPixels: fooPngPixelsResult,
 });
-Deno.writeFileSync('./foo.png', fooPng);
+console.log(Array.from(fooPng).map((someByte) => `0x${someByte.toString(16)}`).join(' '))
+// Deno.writeFileSync('./foo.png', fooPng);
+// 0x89 0x50 0x4e 0x47 0xd 0xa 0x1a 0xa 0x0 0x0 0x0 0xd 0x49 0x48 0x44 0x52 0x0 0x0 0x1 0x0 0x0 0x0 0x1 0x0 0x8 0x2 0x0 0x0 0x0 0xf0 0x3f 0xe7 0x71

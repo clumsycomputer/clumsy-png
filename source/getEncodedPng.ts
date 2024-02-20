@@ -23,12 +23,12 @@ export function getEncodedPng(api: GetEncodedPngApi): Uint8Array {
     widthPixelCount,
     heightPixelCount,
   });
-  const { iendChunk } = getIendChunk();
+  // const { iendChunk } = getIendChunk();
   return new Uint8Array([
     ...pngSignature,
     ...ihdrChunk,
     ...idatChunk,
-    ...iendChunk,
+    // ...iendChunk,
   ]);
 }
 
@@ -88,7 +88,7 @@ type InterlaceMethod = NoneInterlaceMethod | Adam7InterlaceMethod;
 type NoneInterlaceMethod = 0x00;
 type Adam7InterlaceMethod = 0x01;
 
-function getIhdrChunk(api: GetIhdrChunkApi) {
+function getIhdrChunk(api: GetIhdrChunkApi): { ihdrChunk: Uint8Array } {
   const {
     widthPixelCount,
     heightPixelCount,
@@ -136,7 +136,7 @@ interface GetIdatChunkApi extends Pick<GetEncodedPngApi, 'pngPixels'> {
   heightPixelCount: Uint32;
 }
 
-function getIdatChunk(api: GetIdatChunkApi) {
+function getIdatChunk(api: GetIdatChunkApi): { idatChunk: Uint8Array } {
   const { heightPixelCount, widthPixelCount, pngPixels } = api;
   // Each pixel consists of 3 bytes (RGB), and each row starts with a single byte for filter type.
   const augmentedWidthSize = widthPixelCount * 3 + 1;
@@ -160,7 +160,7 @@ function getIdatChunk(api: GetIdatChunkApi) {
         pngPixels[rowIndex][columnIndex][2];
     }
   }
-  const compressedPngPixels = deflate(augmentedPngPixels);
+  const compressedPngPixels = deflate(augmentedPngPixels)
   const idatChunkType: FourByteBigEndianTuple = [0x49, 0x44, 0x41, 0x54]; // 'IDAT' in ASCII
   const idatCyclicRedundancyChecksum = getCyclicRedundancyChecksum({
     someStructuredBytes: [
@@ -180,7 +180,7 @@ function getIdatChunk(api: GetIdatChunkApi) {
   };
 }
 
-function getIendChunk() {
+function getIendChunk(): { iendChunk: Uint8Array } {
   const iendChunkLength = getFourByteBigEndianTuple({
     someUint32: 0,
   });
@@ -189,11 +189,11 @@ function getIendChunk() {
     someStructuredBytes: iendChunkType,
   });
   return {
-    iendChunk: [
+    iendChunk: new Uint8Array([
       ...iendChunkLength,
       ...iendChunkType,
       ...iendCyclicRedundancyChecksum,
-    ],
+    ]),
   };
 }
 
@@ -205,6 +205,7 @@ function getCyclicRedundancyChecksum(
   api: GetCyclicRedundancyChecksumApi,
 ) {
   const { someStructuredBytes } = api;
+  // console.log(Array.from(someStructuredBytes).map((foo) => `0x${foo.toString(16)}`).join(' '))
   const wholeChecksum = someStructuredBytes.reduce(
     (wholeChecksumResult, someByte) => {
       // XOR the current byte of data with the least-significant byte of the checksum, then mask with 0xff
